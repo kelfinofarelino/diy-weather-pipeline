@@ -1,8 +1,8 @@
-requests
+streamlit
 supabase
 pandas
-streamlit
 plotly
 folium
 streamlit-folium
 python-dotenv
+altair>=5.0.0
