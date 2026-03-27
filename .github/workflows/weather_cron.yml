@@ -1,0 +1,24 @@
+name: Run Weather Pipeline
+on:
+  schedule:
+    - cron: '0 * * * *' # Jalan otomatis setiap jam (menit ke-0)
+  workflow_dispatch: # Bisa dijalankan manual dari tombol di GitHub
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run pipeline
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+        run: python data_pipeline.py
