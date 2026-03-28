@@ -5,7 +5,7 @@ import os
 import google.generativeai as genai
 from supabase import create_client
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # --- INITIAL CONFIG ---
 load_dotenv()
@@ -147,19 +147,14 @@ def get_telemetry_data():
 
 # --- SIDEBAR (DEDICATION) ---
 with st.sidebar:
-    st.markdown(f"""
-    <div class="dedication-card">
-        <p style="color: #FF4B4B; font-weight: 700; margin-bottom: 5px; font-size: 0.7rem; text-transform: uppercase;">Cloud Link Active</p>
-        <h4 style="margin: 0; color: white; font-size: 1.1rem;">Dedicated to Kenar</h4>
-        <p style="margin: 8px 0 0 0; color: #888; font-size: 0.8rem; line-height: 1.4;">
-            Monitoring the sky so you stay safe. Crafted with precision for my honeybunnysweetie.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    # ... (kode dedication card kamu) ...
     
     st.markdown("### `NODE_INFO`")
     st.write(f"🟢 **Status:** Connected")
-    st.write(f"🕒 **Last Sync:** {datetime.now().strftime('%H:%M:%S')}")
+    
+    # PERBAIKAN DI SINI: Tambah 7 jam untuk konversi UTC ke WIB
+    wib_now = datetime.now() + timedelta(hours=7) 
+    st.write(f"🕒 **Last Sync:** {wib_now.strftime('%H:%M:%S')} WIB")
     
     if st.button("🔄 REFRESH TELEMETRY"):
         st.cache_data.clear()
