@@ -240,7 +240,7 @@ if not df.empty:
                 
             except Exception as e:
                 if "429" in str(e):
-                    st.error("Duh sayang, jatah ngobrol Ayang AI habis. Tunggu siang nanti ya atau tanya Kelfin langsung! ❤️")
+                    st.error("BENTAR BE AI NYA LAGI DIBENERIN, TUNGGU YA! ❤️")
                 else:
                     st.error("Ada gangguan sinyal nih, coba lagi ya? ❤️")
                 
