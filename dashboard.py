@@ -114,7 +114,6 @@ def init_all():
     # Supabase Connection
     supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
     
-    # AI Engine - Gemini 2.5 Flash
     genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
     system_prompt = """
     Kamu adalah 'Kenar’s Personal AI by Kelfin', sebuah manifestasi perhatian Kelfin yang diwujudkan dalam bentuk Asisten Cuaca Cerdas. Tugas utamanya adalah menjaga Kenar agar selalu aman dan nyaman beraktivitas.
