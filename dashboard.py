@@ -225,12 +225,26 @@ if not df.empty:
 
         # 3. Chat Input Logic
         if prompt := st.chat_input("Apa kabar langit Jogja hari ini, sayang?"):
+            # Simpan ke history agar muncul di UI
             st.session_state.messages.append({"role": "user", "content": prompt})
-            
-            # Kita rerun supaya UI langsung membuat container chat saat pesan pertama masuk
-            st.rerun() 
-            
-        st.markdown('</div>', unsafe_allow_html=True)
+        
+        with st.chat_message("assistant", avatar="🤖"):
+            try:
+                # Panggil AI HANYA di dalam blok ini
+                context_str = df.head(3).to_string() # Ambil 3 data terakhir aja biar hemat token
+                response = ai_engine.generate_content(f"Data: {context_str}\nKenar asks: {prompt}")
+                
+                answer = response.text
+                st.markdown(answer)
+                st.session_state.messages.append({"role": "assistant", "content": answer})
+                
+            except Exception as e:
+                if "429" in str(e):
+                    st.error("Duh sayang, jatah ngobrol Ayang AI habis. Tunggu siang nanti ya atau tanya Kelfin langsung! ❤️")
+                else:
+                    st.error("Ada gangguan sinyal nih, coba lagi ya? ❤️")
+                
+            st.markdown('</div>', unsafe_allow_html=True)
 
         # Logika pemrosesan AI (taruh di luar input agar tidak kena rerun langsung)
         if len(st.session_state.messages) > 0 and st.session_state.messages[-1]["role"] == "user":
