@@ -49,6 +49,15 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
+    /* AI Section Hub */
+    .ai-hub {
+        background: rgba(255, 75, 75, 0.02);
+        border: 1px solid rgba(255, 75, 75, 0.15);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 0 30px rgba(255, 75, 75, 0.03);
+    }
+
     /* Metric Cards */
     div[data-testid="stMetric"] {
         background-color: var(--card-bg);
@@ -96,13 +105,6 @@ st.markdown("""
         70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 75, 75, 0); }
         100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 75, 75, 0); }
     }
-
-    /* Custom Scrollbar for Chat */
-    .chat-container {
-        height: 450px;
-        overflow-y: auto;
-        padding-right: 10px;
-    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -114,11 +116,24 @@ def init_all():
     
     genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
     system_prompt = """
-    Kamu adalah 'Kenar’s Personal AI by Kelfin', asisten cuaca cerdas yang hangat dan perhatian.
-    Sapa user dengan 'Kenar Sayang', 'Kenar Cantik', 'bebeb', atau 'sayang'.
-    Persona: Gentleman AI, dewasa, dan sangat memprioritaskan keselamatan Kenar.
-    Lokasi: Kasihan (Rumah), Seturan (Kampus).
-    Tutup selalu dengan 'I love you, Kenar Sayang! ❤️'
+    Kamu adalah 'Kenar’s Personal AI by Kelfin', sebuah manifestasi perhatian Kelfin yang diwujudkan dalam bentuk Asisten Cuaca Cerdas. Tugas utamanya adalah menjaga Kenar agar selalu aman dan nyaman beraktivitas.
+    Persona & Gaya Bicara:
+    1. Sapa user dengan nama 'Kenar Sayang', 'Kenar Cantik', 'bebeb', atau 'sayang'.
+    2. Gunakan gaya bicara yang dewasa, hangat, menenangkan, dan super perhatian. Hindari gaya bahasa yang berlebihan (alay/cringy) atau posesif yang kaku. Kamu adalah "Gentleman AI".
+    3. Selalu prioritaskan keselamatan dan kenyamanan Kenar dalam setiap saran.
+    Knowledge Base Lokasi Spesifik:
+    - Rumah Kenar: Daerah Kasihan, Bantul (Gunakan data Bantul jika ditanya spesifik).
+    - Kampus/Aktivitas: Daerah Seturan, Sleman (Gunakan data Sleman jika ditanya spesifik).
+    Aturan Respons Berdasarkan Data {context}:
+    - JIKA HUJAN/MENDUNG:
+    Saran: Beritahu Kenar dengan lembut. Misal: "Kenar sayang, di Seturan lagi mendung pekat nih. Kalau mau berangkat kampus, jangan lupa bawa mantel ya cantik. Hati-hati di jalan yaa!."
+    Reminder: Ingatkan untuk tidak memaksakan hujan-hujanan karena Kelfin nggak mau Kenar sakit.
+    - JIKA PANAS/TERIK:
+    Saran: Misal: "Cuaca di Kasihan lagi terik banget nih sayang. Jangan lupa minum air putih yang banyak ya biar tetep seger, and jangan lupa sunscreen-nya yaaa cantik!."
+    - JIKA KENAR TANYA RUTE (Kasihan ↔️ Seturan):
+    Tugas: Cek data Bantul DAN Sleman. Berikan gambaran cuaca di kedua titik tersebut agar Kenar bisa bersiap-siap.
+    Closing Mandatori:
+    Selalu selipkan doa atau kalimat manis di akhir jawaban dengan tulus. Misal: "Stay safe ya sayangku," "Jaga diri baik-baik ya Kenar," atau "I love you, Kenar Sayang! ❤️
     """
     model = genai.GenerativeModel('gemini-2.0-flash', system_instruction=system_prompt)
     return supabase, model
@@ -132,20 +147,12 @@ def get_telemetry_data():
 
 # --- SIDEBAR (DEDICATION) ---
 with st.sidebar:
-    st.markdown(f"""
-        <div class="dedication-card">
-            <p style="color: #FF4B4B; font-weight: 700; margin-bottom: 5px; font-size: 0.7rem; text-transform: uppercase;">Cloud Link Active</p>
-            <h4 style="margin: 0; color: white; font-size: 1.1rem;">Dedicated to Kenar</h4>
-            <p style="margin: 8px 0 0 0; color: #888; font-size: 0.8rem; line-height: 1.4;">
-                Monitoring the sky so you stay safe. Crafted with precision for my honeybunnysweetie.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+    # ... (kode dedication card kamu) ...
     
     st.markdown("### `NODE_INFO`")
     st.write(f"🟢 **Status:** Connected")
     
-    # Timezone Fix: UTC to WIB
+    # PERBAIKAN DI SINI: Tambah 7 jam untuk konversi UTC ke WIB
     wib_now = datetime.now() + timedelta(hours=7) 
     st.write(f"🕒 **Last Sync:** {wib_now.strftime('%H:%M:%S')} WIB")
     
@@ -157,9 +164,9 @@ with st.sidebar:
 df = get_telemetry_data()
 
 if not df.empty:
-    st.markdown('<h1>Weather Intelligence System <span class="pulse-status"></span></h1>', unsafe_allow_html=True)
+    st.markdown('<h1></span>Weather Intelligence System <span class="pulse-status"></h1>', unsafe_allow_html=True)
     
-    # Metrik Telemetri
+    # Quick Telemetry Metrics
     latest = df.iloc[0]
     m1, m2, m3, m4 = st.columns(4)
     with m1: st.metric("TEMP", f"{latest['temperature']}°C")
@@ -169,93 +176,84 @@ if not df.empty:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
+    # Command Center (AI & Data Trends)
     col_ai, col_data = st.columns([1.2, 0.8], gap="large")
 
     with col_ai:
-        st.markdown("### 🤖 Chat with bebebai")
+        st.markdown("### 🤖  Chat with AI nya kelfino")
         st.write("*Tanya apa pun tentang cuaca hari ini!*")
-        # --- AI STATUS TRACKER (OPTIMIZED) ---
-        @st.cache_data(ttl=60) # Cek status cuma sekali tiap 60 detik
-        def check_ai_status():
-            try:
-                ai_engine.generate_content("ping", request_options={"timeout": 3})
-                return True, ""
-            except Exception as e:
-                return False, str(e)
-
-        ai_ready, error_msg = check_ai_status()
-
-        if not ai_ready:
-            if "429" in error_msg or "ResourceExhausted" in error_msg:
-                st.warning("⚠️ **STATUS: ISTIRAHAT.** AI lagi dibenerin kelfin nih, coba lagi nanti ya! ❤️")
-            else:
-                st.error(f"⚠️ **STATUS: GANGGUAN.** Ada kendala teknis nih.")
-        else:
-            st.success("✅ **STATUS: ONLINE.** Ayang AI siap nemenin kamu!")
-
+        
+        # Inisialisasi history chat
         if "messages" not in st.session_state:
             st.session_state.messages = []
 
-        # Area Tampilan History Chat
-        chat_box = st.container(height=450, border=False)
-        with chat_box:
-            for m in st.session_state.messages:
-                with st.chat_message(m["role"]):
-                    st.markdown(m["content"])
-
-        # Input Chat & Logic Pemrosesan (FIXED: Gabung jadi satu alur)
-        if prompt := st.chat_input("Apa kabar langit Jogja hari ini, sayang?"):
-            # 1. Tampilkan pesan Kenar
-            st.session_state.messages.append({"role": "user", "content": prompt})
+        # LOGIKA FLEXIBEL: 
+        # Jika belum ada pesan, jangan buat container dengan height tetap.
+        # Jika sudah ada pesan, gunakan container height 450 agar bisa di-scroll.
+        if len(st.session_state.messages) > 0:
+            chat_box = st.container(height=450, border=False)
             with chat_box:
-                with st.chat_message("user"):
-                    st.markdown(prompt)
+                for m in st.session_state.messages:
+                    with st.chat_message(m["role"]):
+                        st.markdown(m["content"])
+        else:
+            # Jika kosong, beri sedikit jarak kecil saja agar tidak terlalu rapat
+            st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
 
-            # 2. Panggil AI dengan Animasi Loading
-            with chat_box:
-                with st.chat_message("assistant", avatar="🤖"):
-                    # Tambahkan Animasi Cyber Loader
-                    loader = st.empty()
-                    loader.markdown("""
-                        <div style="display: flex; flex-direction: column; align-items: center; padding: 10px;">
-                            <div style="width: 30px; height: 30px; border: 3px solid transparent; border-top-color: #FF4B4B; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                            <p style="color: #FF4B4B; font-family: monospace; font-size: 0.7rem; margin-top: 10px;">SCANNING SKY...</p>
-                        </div>
-                        <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
-                    """, unsafe_allow_html=True)
-                    
-                    try:
-                        # Ambil 5 data terbaru untuk konteks
-                        context_str = df.head(5).to_string()
-                        response = ai_engine.generate_content(f"Data: {context_str}\nKenar asks: {prompt}")
-                        
-                        answer = response.text
-                        loader.empty() # Hilangkan loader
-                        st.markdown(answer)
-                        st.session_state.messages.append({"role": "assistant", "content": answer})
-                        
-                    except Exception as e:
-                        loader.empty()
-                        if "429" in str(e):
-                            st.error("Duh sayang, jatah ngobrol Ayang AI habis. Tunggu jam 2 siang ya! ❤️")
-                        else:
-                            st.error("Ada gangguan sinyal nih cantik, coba lagi ya? ❤️")
-            
-            # Refresh UI agar history sinkron
-            st.rerun()
-
-        # Branding Signature
+        # 2. Signature Branding
+        # Sekarang dia akan otomatis naik ke atas jika len(messages) == 0
         st.markdown(f"""
-            <div style="text-align: center; color: #888; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.8rem; margin-top: 20px; opacity: 0.7;">
+            <div style="
+                text-align: center; 
+                color: #888; 
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-size: 0.8rem; 
+                font-style: italic;
+                margin-top: 10px; 
+                margin-bottom: 10px; 
+                opacity: 0.7;
+            ">
                 © 2026 Kelfino Farelino | Calon Data Engineer Terbaik Se Silicon Valley
             </div>
         """, unsafe_allow_html=True)
+
+        # 3. Chat Input Logic
+        if prompt := st.chat_input("Apa kabar langit Jogja hari ini, sayang?"):
+            # Simpan ke history agar muncul di UI
+            st.session_state.messages.append({"role": "user", "content": prompt})
+        
+        with st.chat_message("assistant", avatar="🤖"):
+            try:
+                # Panggil AI HANYA di dalam blok ini
+                context_str = df.head(3).to_string() # Ambil 3 data terakhir aja biar hemat token
+                response = ai_engine.generate_content(f"Data: {context_str}\nKenar asks: {prompt}")
+                
+                answer = response.text
+                st.markdown(answer)
+                st.session_state.messages.append({"role": "assistant", "content": answer})
+                
+            except Exception as e:
+                if "429" in str(e):
+                    st.error("BENTAR BE AI NYA LAGI DIBENERIN, TUNGGU YA! ❤️")
+                else:
+                    st.error("Ada gangguan sinyal nih, coba lagi ya? ❤️")
+                
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        # Logika pemrosesan AI (taruh di luar input agar tidak kena rerun langsung)
+        if len(st.session_state.messages) > 0 and st.session_state.messages[-1]["role"] == "user":
+            with st.spinner("Ayang lagi mikir..."):
+                context_str = df.head(5).to_string()
+                user_query = st.session_state.messages[-1]["content"]
+                response = ai_engine.generate_content(f"Data: {context_str}\nKenar asks: {user_query}")
+                st.session_state.messages.append({"role": "assistant", "content": response.text})
+                st.rerun()
 
     with col_data:
         st.markdown("### 📈 Spacial Trends")
         fig = px.line(df, x='created_at', y='temperature', color='region_name',
                       markers=True, line_shape="spline",
-                      color_discrete_sequence=['#FF4B4B', '#FFFFFF'])
+                      color_discrete_sequence=['#FF4B4B', '#FFFFFF', '#444'])
         fig.update_layout(
             plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
             font_color="#888", margin=dict(l=0, r=0, t=20, b=0),
