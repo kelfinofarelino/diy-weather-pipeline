@@ -170,7 +170,7 @@ with st.sidebar:
 df = get_telemetry_data()
 
 if not df.empty:
-    st.markdown('<h1><span class="pulse-status"></span>Weather Intelligence System</h1>', unsafe_allow_html=True)
+    st.markdown('<h1></span>Weather Intelligence System <span class="pulse-status"></h1>', unsafe_allow_html=True)
     
     # Quick Telemetry Metrics
     latest = df.iloc[0]
@@ -186,8 +186,7 @@ if not df.empty:
     col_ai, col_data = st.columns([1.2, 0.8], gap="large")
 
     with col_ai:
-        st.markdown('<div class="ai-hub">', unsafe_allow_html=True)
-        st.markdown("### 🤖 Chat With AI nya kelfino")
+        st.markdown("### 🤖  Chat with AI nya kelfino")
         st.write("*Tanya apa pun tentang cuaca hari ini!*")
         
         # Inisialisasi history chat
