@@ -174,8 +174,27 @@ if not df.empty:
     with col_ai:
         st.markdown("### 🤖 Chat with bebebai")
         st.write("*Tanya apa pun tentang cuaca hari ini!*")
+        
         # --- AI STATUS TRACKER (OPTIMIZED) ---
         # @st.cache_data(ttl=60) # Cek status cuma sekali tiap 60 detik
+        try:
+            # Kita coba panggil AI beneran tanpa cache buat mastiin
+            test_res = ai_engine.generate_content("ping", request_options={"timeout": 5})
+            st.success("✅ **STATUS: ONLINE.** Ayang AI sudah bangun, Fin!")
+            ai_ready = True
+        except Exception as e:
+            ai_ready = False
+            # TAMPILKAN ERROR ASLINYA BIAR KITA TAHU MASALAHNYA APA
+            st.warning("⚠️ **STATUS: MASIH ISTIRAHAT**")
+            st.error(f"Pesan Error Asli dari Google: `{str(e)}`")
+            
+            # Cek 4 digit terakhir kunci lagi buat mastiin kuncinya bener
+            key_check = os.getenv("GEMINI_API_KEY")
+            if key_check:
+                st.info(f"🔑 Memakai kunci akhiran: `...{key_check[-4:]}`")
+
+        st.markdown("---")
+        
         def check_ai_status():
             try:
                 ai_engine.generate_content("ping", request_options={"timeout": 3})
