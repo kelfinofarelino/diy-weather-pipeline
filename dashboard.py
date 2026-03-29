@@ -107,7 +107,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # --- BACKEND ARCHITECTURE ---
-# @st.cache_resource
+@st.cache_resource
 def init_all():
     # Supabase Connection
     supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
@@ -176,7 +176,7 @@ if not df.empty:
         st.write("*Tanya apa pun tentang cuaca hari ini!*")
         
         # --- AI STATUS TRACKER (OPTIMIZED) ---
-        # @st.cache_data(ttl=60) # Cek status cuma sekali tiap 60 detik
+        @st.cache_data(ttl=60) # Cek status cuma sekali tiap 60 detik
         try:
             # Kita coba panggil AI beneran tanpa cache buat mastiin
             test_res = ai_engine.generate_content("ping", request_options={"timeout": 5})
