@@ -82,20 +82,35 @@ def check_ai_status():
     except Exception as e:
         return False, str(e)
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=120)
 def get_telemetry_data():
-    res = supabase_client.table("weather_logs").select("*").order("created_at", desc=True).limit(8).execute()
+    res = (supabase_client.table("weather_logs")
+           .select("*")
+           .order("created_at", desc=True)
+           .limit(15)
+           .execute())
     return pd.DataFrame(res.data)
 
-def send_whatsapp_alert(message):
-    phone = os.getenv("WA_PHONE")
-    apikey = os.getenv("WA_API_KEY")
-    if phone and apikey:
-        msg_encoded = urllib.parse.quote(message)
-        url = f"https://api.callmebot.com/whatsapp.php?phone={phone}&text={msg_encoded}&apikey={apikey}"
-        try:
-            requests.get(url)
-        except: pass
+def send_telegram_alert(message):
+    token = os.getenv("TELEGRAM_TOKEN")
+    # Ambil string ID yang dipisahkan koma
+    chat_ids_str = os.getenv("TELEGRAM_CHAT_IDS")
+    
+    if token and chat_ids_str:
+        chat_ids = [cid.strip() for cid in chat_ids_str.split(",")]
+        
+        for cid in chat_ids:
+            url = f"https://api.telegram.org/bot{token}/sendMessage"
+            payload = {
+                "chat_id": cid,
+                "text": message,
+                "parse_mode": "Markdown"
+            }
+            try:
+                # Kirim ke masing-masing ID
+                requests.post(url, json=payload, timeout=10)
+            except Exception as e:
+                print(f"Gagal kirim ke ID {cid}: {e}")
 
 # --- SIDEBAR (DEDICATION) ---
 with st.sidebar:
@@ -130,11 +145,34 @@ if not df.empty:
     with m3: st.metric("WIND", f"{latest['wind_speed']} m/s")
     with m4: st.metric("REGION", latest['region_name'].upper())
 
-    # WA Rain Alert Logic
-    is_raining = "rain" in latest['weather_desc'].lower() or "hujan" in latest['weather_desc'].lower()
-    if is_raining and st.session_state.get('last_wa_alert') != latest['created_at']:
-        send_whatsapp_alert(f"🌦️ *BEBEBAI SKY GUARDIAN REPORT*\nHalo Kenar Sayang! Ada hujan di {latest['region_name']}. Bawa mantel ya cantik! ❤️")
-        st.session_state['last_wa_alert'] = latest['created_at']
+    # Tele Rain Alert Logic
+    # 1. Filter data untuk masing-masing titik penting
+    latest_home = df[df['region_name'] == 'Kasihan (Rumah)'].iloc[0] if not df[df['region_name'] == 'Kasihan (Rumah)'].empty else None
+    latest_campus = df[df['region_name'] == 'Seturan (Kampus)'].iloc[0] if not df[df['region_name'] == 'Seturan (Kampus)'].empty else None
+
+    # 2. Cek apakah ada hujan di salah satu atau kedua lokasi
+    rain_home = ("rain" in latest_home['weather_desc'].lower() or "hujan" in latest_home['weather_desc'].lower()) if latest_home is not None else False
+    rain_campus = ("rain" in latest_campus['weather_desc'].lower() or "hujan" in latest_campus['weather_desc'].lower()) if latest_campus is not None else False
+
+    # 3. Eksekusi pengiriman jika ada hujan dan belum dikirim untuk timestamp ini
+    if (rain_home or rain_campus) and st.session_state.get('last_alert') != latest['created_at']:
+        if rain_home and rain_campus:
+            location_status = "di **Rumah (Kasihan)** dan **Kampus (Seturan)** lagi hujan nih"
+        elif rain_home:
+            location_status = "di **Rumah (Kasihan)** sudah mulai hujan nih"
+        else:
+            location_status = "di **Kampus (Seturan)** terpantau lagi hujan nih"
+
+        msg = (
+            f"🌦️ SKY GUARDIAN REPORT\n\n"
+            f"Halo Kenar Sayang! Laporan cuaca rute kamu hari ini:\n"
+            f"Ternyata {location_status}. 🌧️\n\n"
+            f"Kalau mau berangkat atau pulang, jangan lupa bawa mantel ya cantik. "
+            f"Tetap hati-hati di jalan, Kelfin nggak mau kamu kehujanan apalagi sampai sakit. ❤️\n\n"
+            f"I love you, Kenar Sayang! ✨"
+        )
+        send_telegram_alert(msg)
+        st.session_state['last_alert'] = latest['created_at']
 
     st.markdown("<br>", unsafe_allow_html=True)
     col_ai, col_data = st.columns([1.2, 0.8], gap="large")

@@ -14,12 +14,11 @@ supabase = create_client(url, key)
 
 # Konfigurasi OpenWeather
 API_KEY = os.getenv("OPENWEATHER_API_KEY")
+# Konfigurasi OpenWeather yang lebih spesifik buat Kenar
 REGIONS = {
-    "Kota Yogyakarta": {"lat": -7.7956, "lon": 110.3695},
-    "Sleman": {"lat": -7.7211, "lon": 110.3621},
-    "Bantul": {"lat": -7.8897, "lon": 110.3234},
-    "Kulon Progo": {"lat": -7.8311, "lon": 110.1333},
-    "Gunungkidul": {"lat": -7.9950, "lon": 110.6010}
+    "Seturan (Kampus)": {"lat": -7.7693, "lon": 110.4083}, # Koordinat Seturan
+    "Kasihan (Rumah)": {"lat": -7.8333, "lon": 110.3333},  # Koordinat Kasihan
+    "Yogyakarta City": {"lat": -7.7956, "lon": 110.3695}   # Kota Jogja
 }
 
 def fetch_and_store():
