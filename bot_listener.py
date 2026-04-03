@@ -22,7 +22,7 @@ def check_weather(message):
     if res.data:
         data = res.data[0]
         reply = (
-            f"📊 **LAPORAN CUACA TERBARU**\n\n"
+            f"📊 LAPORAN CUACA TERBARU\n\n"
             f"📍 Wilayah: {data['region_name']}\n"
             f"🌡️ Suhu: {data['temperature']}°C\n"
             f"☁️ Status: {data['weather_desc']}\n"
