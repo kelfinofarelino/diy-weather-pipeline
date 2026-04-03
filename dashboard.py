@@ -74,10 +74,11 @@ def init_all():
 # Inisialisasi Utama
 supabase_client, ai_engine = init_all()
 
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=120) # Naikkan ke 2 menit biar nggak keseringan ping
 def check_ai_status():
     try:
-        ai_engine.generate_content("ping", request_options={"timeout": 20})
+        # Naikkan timeout ke 60 detik (Standar Pro)
+        ai_engine.generate_content("p", request_options={"timeout": 60})
         return True, ""
     except Exception as e:
         return False, str(e)
@@ -162,20 +163,29 @@ if not df.empty:
             st.session_state.messages.append({"role": "user", "content": prompt})
             with chat_box:
                 with st.chat_message("user"): st.markdown(prompt)
+            
             with chat_box:
                 with st.chat_message("assistant", avatar="🤖"):
                     loader = st.empty()
-                    loader.markdown("Scanning sky...")
+                    loader.markdown("🔄 **Ayang AI lagi mikir keras...**")
                     try:
                         context_str = df.head(5).to_string()
-                        response = ai_engine.generate_content(f"Data Cuaca: {context_str}\nKenar tanya: {prompt}",
-                        request_options={"timeout": 20})
+                        # GUNAKAN TIMEOUT 60 DETIK DI SINI JUGA
+                        response = ai_engine.generate_content(
+                            f"Data Cuaca: {context_str}\nKenar tanya: {prompt}",
+                            request_options={"timeout": 60} 
+                        )
                         loader.empty()
                         st.markdown(response.text)
                         st.session_state.messages.append({"role": "assistant", "content": response.text})
                     except Exception as e:
                         loader.empty()
-                        st.error("Duh sayang, jatah ngobrol Ayang AI habis. Sabar ya! ❤️")
+                        if "504" in str(e) or "deadline" in str(e).lower():
+                            st.error("⚠️ **Sinyal lagi bapuk, sayang.** Server Google kelamaan mikir. Coba klik 'Refresh Telemetry' terus tanya lagi ya? ❤️")
+                        elif "429" in str(e):
+                            st.error("Duh sayang, jatah ngobrol Ayang AI habis. Sabar ya! ❤️")
+                        else:
+                            st.error(f"Ada kendala teknis: `{str(e)[:50]}...`")
             st.rerun()
 
         st.markdown(f"""<div style="text-align: center; color: #888; font-size: 0.8rem; margin-top: 20px; opacity: 0.7;">© 2026 Kelfino Farelino | Calon Data Engineer Terbaik Se Silicon Valley</div>""", unsafe_allow_html=True)

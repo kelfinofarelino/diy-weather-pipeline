@@ -1,45 +1,27 @@
-import google.generativeai as genai
+from google import genai
 import os
 from dotenv import load_dotenv
 
-# 1. Load env
-load_dotenv()
+load_dotenv(override=True)
 api_key = os.getenv("GEMINI_API_KEY")
 
 print("="*30)
-print("🔍 AI GUARDIAN DIAGNOSTIC")
+print("🔍 FINAL DIAGNOSTIC")
 print("="*30)
 
-# 2. Cek apakah key terbaca
-if not api_key:
-    print("❌ ERROR: GEMINI_API_KEY tidak ditemukan di file .env!")
-else:
-    print(f"✅ Key terdeteksi (Akhiran: ...{api_key[-4:]})")
+try:
+    client = genai.Client(api_key=api_key)
     
-    try:
-        # 3. Konfigurasi
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-flash-latest')
-        
-        print("🚀 Mencoba memanggil Gemini API...")
-        
-        # 4. Test Panggilan
-        response = model.generate_content("Halo Ayang AI, apakah kamu sudah bangun?")
-        
-        print("\n--- HASIL TEST ---")
-        print(f"Respon AI: {response.text}")
-        print("------------------")
-        print("🎉 STATUS: API KEY BERFUNGSI NORMAL!")
-        
-    except Exception as e:
-        print("\n--- TEST GAGAL ---")
-        print(f"Detail Error:\n{str(e)}")
-        print("\n💡 ANALISIS:")
-        if "429" in str(e):
-            print("Google masih memblokir request kamu. Coba buat API Key dari akun Google yang BENAR-BENAR belum pernah dipakai hari ini.")
-        elif "API_KEY_INVALID" in str(e):
-            print("Kuncinya salah ketik atau tidak valid. Cek lagi di AI Studio.")
-        else:
-            print("Ada masalah koneksi atau konfigurasi model.")
+    # Pakai nama model 'gemini-flash-latest' (Sesuai list kamu tadi)
+    # Ini model paling 'nurut' dan jarang kena limit 0
+    response = client.models.generate_content(
+        model='gemini-flash-latest', 
+        contents="Halo! Sky Guardian Kelfin lapor, apakah sistem sudah stabil?"
+    )
+    
+    print(f"🚀 RESPON AI: {response.text}")
+    print("\n🎉 AKHIRNYA TEMBUS, FIN! GO GREEN!")
+except Exception as e:
+    print(f"\n❌ ERROR: {e}")
 
 print("="*30)
