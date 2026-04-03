@@ -2,25 +2,33 @@ import requests
 import os
 from dotenv import load_dotenv
 
-# Pakai override=True biar kalau kamu ganti ID di .env langsung kebaca
 load_dotenv(override=True)
 
 token = os.getenv("TELEGRAM_TOKEN")
-chat_id = os.getenv("TELEGRAM_CHAT_ID")
+# Ambil string yang ada komanya
+chat_ids_raw = os.getenv("TELEGRAM_CHAT_IDS") 
 
-print(f"--- DIAGNOSTIK TELEGRAM ---")
-print(f"Menggunakan ID: {chat_id}")
-print(f"Mengirim pesan...")
-
-pesan = "🌦️ **BEBEBAI SKY GUARDIAN ONLINE**\n\nHALO BEBEB! Kalau pesan ini muncul, artinya bebebai siap digunakan! 🚀"
-
-url = f"https://api.telegram.org/bot{token}/sendMessage"
-payload = {"chat_id": chat_id, "text": pesan, "parse_mode": "Markdown"}
-
-response = requests.post(url, json=payload)
-print(response.text)
-
-if response.status_code == 200:
-    print("\n🎉 MANTAP FIN! BERHASIL!")
+if not chat_ids_raw:
+    print("❌ ERROR: TELEGRAM_CHAT_IDS di .env belum ada atau kosong!")
 else:
-    print("\n❌ MASIH GAGAL. Cek apakah kamu sudah klik START di bot-mu!")
+    # Pecah jadi list: ['5880216671', 'ID_KENAR']
+    chat_ids = [cid.strip() for cid in chat_ids_raw.split(",")]
+
+    print(f"--- DIAGNOSTIK DOUBLE GUARDIAN ---")
+    print(f"Ditemukan {len(chat_ids)} ID: {chat_ids}")
+
+    for cid in chat_ids:
+        print(f"Mengirim ke {cid}...")
+        url = f"https://api.telegram.org/bot{token}/sendMessage"
+        payload = {
+            "chat_id": cid, 
+            "text": f"🛡️ BEBEBAI TEST\n\nkalo chat ini masuk artinya kelfin lagi ngoding 🚀",
+            "parse_mode": "Markdown"
+        }
+        
+        response = requests.post(url, json=payload)
+        
+        if response.status_code == 200:
+            print(f"✅ BERHASIL kirim ke ID: {cid}")
+        else:
+            print(f"❌ GAGAL kirim ke ID: {cid}. Error: {response.text}")
