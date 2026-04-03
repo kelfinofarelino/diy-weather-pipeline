@@ -145,17 +145,29 @@ if not df.empty:
     with m3: st.metric("WIND", f"{latest['wind_speed']} m/s")
     with m4: st.metric("REGION", latest['region_name'].upper())
 
-    # Tele Rain Alert Logic
+    # --- TELE RAIN ALERT LOGIC ---
+    
     # 1. Filter data untuk masing-masing titik penting
     latest_home = df[df['region_name'] == 'Kasihan (Rumah)'].iloc[0] if not df[df['region_name'] == 'Kasihan (Rumah)'].empty else None
     latest_campus = df[df['region_name'] == 'Seturan (Kampus)'].iloc[0] if not df[df['region_name'] == 'Seturan (Kampus)'].empty else None
 
-    # 2. Cek apakah ada hujan di salah satu atau kedua lokasi
+    # 2. Cek apakah ada hujan
     rain_home = ("rain" in latest_home['weather_desc'].lower() or "hujan" in latest_home['weather_desc'].lower()) if latest_home is not None else False
     rain_campus = ("rain" in latest_campus['weather_desc'].lower() or "hujan" in latest_campus['weather_desc'].lower()) if latest_campus is not None else False
 
-    # 3. Eksekusi pengiriman jika ada hujan dan belum dikirim untuk timestamp ini
-    if (rain_home or rain_campus) and st.session_state.get('last_alert') != latest['created_at']:
+    # 3. Logika Interval 30 Menit
+    now = datetime.now()
+    
+    # Cek kapan terakhir kirim notif
+    last_notif_time = st.session_state.get('last_notif_time')
+    
+    # Syarat kirim: 
+    # - Belum pernah kirim notif SAMA SEKALI, ATAU
+    # - Sudah lewat 30 menit dari notif terakhir
+    is_cooldown_over = last_notif_time is None or (now - last_notif_time) >= timedelta(minutes=30)
+
+    if (rain_home or rain_campus) and is_cooldown_over:
+        # Tentukan keterangan lokasi
         if rain_home and rain_campus:
             location_status = "di **Rumah (Kasihan)** dan **Kampus (Seturan)** lagi hujan nih"
         elif rain_home:
@@ -164,15 +176,20 @@ if not df.empty:
             location_status = "di **Kampus (Seturan)** terpantau lagi hujan nih"
 
         msg = (
-            f"🌦️ SKY GUARDIAN REPORT\n\n"
+            f"🌦️ BEBEBAI RAIN REPORT\n\n"
             f"Halo Kenar Sayang! Laporan cuaca rute kamu hari ini:\n"
             f"Ternyata {location_status}. 🌧️\n\n"
             f"Kalau mau berangkat atau pulang, jangan lupa bawa mantel ya cantik. "
             f"Tetap hati-hati di jalan, Kelfin nggak mau kamu kehujanan apalagi sampai sakit. ❤️\n\n"
             f"I love you, Kenar Sayang! ✨"
         )
+        
+        # Kirim notif
         send_telegram_alert(msg)
-        st.session_state['last_alert'] = latest['created_at']
+        
+        # UPDATE waktu terakhir kirim ke SEKARANG
+        st.session_state['last_notif_time'] = now
+        st.toast("Notifikasi hujan terkirim ke Telegram!")
 
     st.markdown("<br>", unsafe_allow_html=True)
     col_ai, col_data = st.columns([1.2, 0.8], gap="large")
