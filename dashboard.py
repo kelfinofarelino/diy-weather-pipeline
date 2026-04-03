@@ -155,10 +155,14 @@ if not df.empty:
     rain_campus = ("rain" in latest_campus['weather_desc'].lower() or "hujan" in latest_campus['weather_desc'].lower()) if latest_campus is not None else False
 
     # 3. Eksekusi pengiriman jika ada hujan dan belum dikirim untuk timestamp ini
-    # Ganti (rain_home or rain_campus) jadi True biar notifnya langsung keluar pas di-refresh
-    if True and st.session_state.get('last_alert') != latest['created_at']:
-        location_status = "di rute perjalanan kamu"
-        
+    if (rain_home or rain_campus) and st.session_state.get('last_alert') != latest['created_at']:
+        if rain_home and rain_campus:
+            location_status = "di **Rumah (Kasihan)** dan **Kampus (Seturan)** lagi hujan nih"
+        elif rain_home:
+            location_status = "di **Rumah (Kasihan)** sudah mulai hujan nih"
+        else:
+            location_status = "di **Kampus (Seturan)** terpantau lagi hujan nih"
+
         msg = (
             f"🌦️ SKY GUARDIAN REPORT\n\n"
             f"Halo Kenar Sayang! Laporan cuaca rute kamu hari ini:\n"
