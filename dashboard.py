@@ -18,7 +18,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- ADVANCED PRO-CSS (SILICON VALLEY STYLE) ---
+# --- CSS ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
@@ -39,14 +39,14 @@ st.markdown("""
 # --- BACKEND ARCHITECTURE ---
 
 def init_all():
-    # 1. Config Google AI
+    # Config Google AI
     api_key = os.getenv("GEMINI_API_KEY")
     genai.configure(api_key=api_key)
     
-    # 2. Supabase Connection
+    # Supabase Connection
     supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
     
-    # 3. Setup Persona Asisten (Gentleman AI)
+    # Setup Persona Asisten (Gentleman AI)
     system_prompt = """
     Kamu adalah 'Kenar’s Personal AI by Kelfin', sebuah manifestasi perhatian Kelfin yang diwujudkan dalam bentuk Asisten Cuaca Cerdas. Tugas utamanya adalah menjaga Kenar agar selalu aman dan nyaman beraktivitas.
     Persona & Gaya Bicara:
@@ -67,14 +67,13 @@ def init_all():
     Closing Mandatori:
     Selalu selipkan doa atau kalimat manis di akhir jawaban dengan tulus. Misal: "Stay safe ya sayangku," "Jaga diri baik-baik ya Kenar," atau "I love you, Kenar Sayang! ❤️
     """
-    # PAKAI MODEL YANG TERBUKTI BISA DI TEST_AI.PY
     model = genai.GenerativeModel('gemini-flash-latest', system_instruction=system_prompt)
     return supabase, model
 
 # Inisialisasi Utama
 supabase_client, ai_engine = init_all()
 
-@st.cache_data(ttl=120) # Naikkan ke 2 menit biar nggak keseringan ping
+@st.cache_data(ttl=120)
 def check_ai_status():
     try:
         # Naikkan timeout ke 60 detik (Standar Pro)
@@ -134,22 +133,22 @@ if not df.empty:
     # WA Rain Alert Logic
     is_raining = "rain" in latest['weather_desc'].lower() or "hujan" in latest['weather_desc'].lower()
     if is_raining and st.session_state.get('last_wa_alert') != latest['created_at']:
-        send_whatsapp_alert(f"🌦️ *SKY GUARDIAN REPORT*\nHalo Kenar Sayang! Ada hujan di {latest['region_name']}. Bawa mantel ya cantik! ❤️")
+        send_whatsapp_alert(f"🌦️ *BEBEBAI SKY GUARDIAN REPORT*\nHalo Kenar Sayang! Ada hujan di {latest['region_name']}. Bawa mantel ya cantik! ❤️")
         st.session_state['last_wa_alert'] = latest['created_at']
 
     st.markdown("<br>", unsafe_allow_html=True)
     col_ai, col_data = st.columns([1.2, 0.8], gap="large")
 
     with col_ai:
-        st.markdown("### 🤖 Chat with bebebai")
+        st.markdown("### Chat with bebebai")
         
         # Status Tracker
         ai_ready, error_msg = check_ai_status()
         if not ai_ready:
-            st.warning("⚠️ **AI STATUS: MAINTENANCE** BebebAI lagi dibenerin kelfin cuy")
+            st.warning("⚠️ **AI STATUS: MAINTENANCE** Bebebai lagi dibenerin kelfin cuy!")
             st.error(f"Error: `{error_msg[:100]}...`")
         else:
-            st.success("**AI STATUS: ONLINE.** bebebAI siap nemenin kamu!")
+            st.success("**AI STATUS: ONLINE** Bebebai siap nemenin kamu!")
 
         st.markdown("---")
         if "messages" not in st.session_state: st.session_state.messages = []
@@ -159,15 +158,15 @@ if not df.empty:
             for m in st.session_state.messages:
                 with st.chat_message(m["role"]): st.markdown(m["content"])
 
-        if prompt := st.chat_input("Apa kabar langit Jogja hari ini bebeb?"):
+        if prompt := st.chat_input("Apa kabar langit Jogja hari ini bebebai?"):
             st.session_state.messages.append({"role": "user", "content": prompt})
             with chat_box:
                 with st.chat_message("user"): st.markdown(prompt)
             
             with chat_box:
-                with st.chat_message("assistant", avatar="🤖"):
+                with st.chat_message("assistant", avatar="☁️"):
                     loader = st.empty()
-                    loader.markdown("🔄 **Ayang AI lagi mikir keras...**")
+                    loader.markdown("**bebebai cek cuaca duluw...**")
                     try:
                         context_str = df.head(5).to_string()
                         # GUNAKAN TIMEOUT 60 DETIK DI SINI JUGA
@@ -181,9 +180,9 @@ if not df.empty:
                     except Exception as e:
                         loader.empty()
                         if "504" in str(e) or "deadline" in str(e).lower():
-                            st.error("⚠️ **Sinyal lagi bapuk, sayang.** Server Google kelamaan mikir. Coba klik 'Refresh Telemetry' terus tanya lagi ya? ❤️")
+                            st.error("⚠️ **Sinyal lagi bapuk be.** Server Google kelamaan mikir. Coba klik 'Refresh Telemetry' terus tanya lagi ya")
                         elif "429" in str(e):
-                            st.error("Duh sayang, jatah ngobrol Ayang AI habis. Sabar ya! ❤️")
+                            st.error("Oh no, bebebai perlu ganti key. Kabarin Kelfin! ❤️")
                         else:
                             st.error(f"Ada kendala teknis: `{str(e)[:50]}...`")
             st.rerun()
