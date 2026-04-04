@@ -22,7 +22,7 @@ else:
         url = f"https://api.telegram.org/bot{token}/sendMessage"
         payload = {
             "chat_id": cid, 
-            "text": f"🛡️ BEBEBAI TEST\n\nkalo chat ini masuk artinya kelfin lagi ngoding 🚀",
+            "text": f"",
             "parse_mode": "Markdown"
         }
         

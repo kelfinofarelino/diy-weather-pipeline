@@ -1,0 +1,26 @@
+name: Bebebai Guardian Cron
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Jalan otomatis tiap 30 menit
+  workflow_dispatch: # Biar bisa kamu klik 'Run' manual buat ngetes
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install requests supabase
+      - name: Run Guardian
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+          TELEGRAM_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_IDS }}
+        run: python github_guardian.py

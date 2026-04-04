@@ -147,47 +147,53 @@ if not df.empty:
 
     # --- TELE RAIN ALERT LOGIC ---
     
-    # 1. Filter data lokasi
+    # 1. Identifikasi data lokasi
     latest_home = df[df['region_name'] == 'Kasihan (Rumah)'].iloc[0] if not df[df['region_name'] == 'Kasihan (Rumah)'].empty else None
     latest_campus = df[df['region_name'] == 'Seturan (Kampus)'].iloc[0] if not df[df['region_name'] == 'Seturan (Kampus)'].empty else None
 
-    # 2. Cek status hujan
+    # 2. Cek apakah cuaca di Supabase terbaca hujan
     rain_home = ("rain" in latest_home['weather_desc'].lower() or "hujan" in latest_home['weather_desc'].lower()) if latest_home is not None else False
     rain_campus = ("rain" in latest_campus['weather_desc'].lower() or "hujan" in latest_campus['weather_desc'].lower()) if latest_campus is not None else False
 
     if rain_home or rain_campus:
-        # 3. Cek waktu terakhir dari Supabase (BUKAN Session State)
-        res = supabase_client.table("bot_status").select("last_val").eq("key_name", "last_rain_alert").single().execute()
-        last_notif_str = res.data['last_val']
-        
-        # Konversi string ISO ke datetime object
-        last_notif_dt = datetime.fromisoformat(last_notif_str.replace('Z', '+00:00')).replace(tzinfo=None)
-        time_diff = datetime.utcnow() - last_notif_dt
-
-        # 4. Jika sudah lewat 30 menit, baru kirim
-        if time_diff >= timedelta(minutes=30):
-            if rain_home and rain_campus:
-                location_status = "di **Rumah (Kasihan)** dan **Kampus (Seturan)** lagi hujan nih"
-            elif rain_home:
-                location_status = "di **Rumah (Kasihan)** sudah mulai hujan nih"
-            else:
-                location_status = "di **Kampus (Seturan)** terpantau lagi hujan nih"
-
-        msg = (
-            f"🌦️ BEBEBAI RAIN REPORT!\n\n"
-            f"Kondisi cuaca {location_status}. 🌧️\n"
-            f"Kalau mau berangkat atau pulang, jangan lupa bawa mantel ya cantik. "
-            f"Tetap hati-hati di jalan, Kelfin nggak mau kamu kehujanan apalagi sampai sakit. ❤️\n\n"
-            f"I love you, Kenar Sayang! ✨"
-        )
-        
-        # Kirim notif
-        send_telegram_alert(msg)
+        try:
+            # 3. Tarik waktu terakhir kirim notif dari tabel 'bot_status'
+            res = supabase_client.table("bot_status").select("last_val").eq("key_name", "last_rain_alert").single().execute()
+            last_notif_str = res.data['last_val']
             
-        # 5. Update waktu terbaru ke Supabase
-        supabase_client.table("bot_status").update({"last_val": datetime.utcnow().isoformat()}).eq("key_name", "last_rain_alert").execute()
-        st.toast("Global Rain Alert Sent! 🛡️")
+            # Konversi waktu UTC Supabase ke objek Python
+            last_notif_dt = datetime.fromisoformat(last_notif_str.replace('Z', '+00:00')).replace(tzinfo=None)
+            time_since_last_notif = datetime.utcnow() - last_notif_dt
 
+            # 4. Syarat: Kirim hanya jika sudah lewat 30 menit
+            if time_since_last_notif >= timedelta(minutes=30):
+                if rain_home and rain_campus:
+                    location_status = "di **Rumah (Kasihan)** dan **Kampus (Seturan)** lagi hujan nih"
+                elif rain_home:
+                    location_status = "di **Rumah (Kasihan)** sudah mulai hujan nih"
+                else:
+                    location_status = "di **Kampus (Seturan)** terpantau lagi hujan nih"
+            msg = (
+                f"🌦️ BEBEBAI RAIN REPORT!\n\n"
+                f"Kondisi cuaca {location_status}. 🌧️\n"
+                f"Kalau mau berangkat atau pulang, jangan lupa bawa mantel ya cantik. "
+                f"Tetap hati-hati di jalan, Kelfin nggak mau kamu kehujanan apalagi sampai sakit. ❤️\n\n"
+                f"I love you, Kenar Sayang! ✨"
+            )
+        
+            # Kirim notif
+            send_telegram_alert(msg)
+            
+            # 5. Update waktu terbaru ke Supabase
+            supabase_client.table("bot_status").update({
+                    "last_val": datetime.utcnow().isoformat()
+                }).eq("key_name", "last_rain_alert").execute()
+                
+            st.toast("🛡️ Notifikasi hujan terkirim ke Telegram!")
+            
+        except Exception as e:
+            # Jika ada error database, kita log diam-diam aja biar gak ganggu UI
+            print(f"Cooldown Error: {e}")
     st.markdown("<br>", unsafe_allow_html=True)
     col_ai, col_data = st.columns([1.2, 0.8], gap="large")
 
