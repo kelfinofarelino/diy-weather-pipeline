@@ -37,7 +37,7 @@ def run_check():
             }).execute()
 
             if "rain" in desc.lower() or "hujan" in desc.lower():
-                msg = f"🌦️ **BEBEBAI AUTO-GUARDIAN**\n\nKenar sayang, di **{name}** lagi hujan nih. 🌧️\nJangan lupa pake mantel ya pas jalan. Hati-hati cantik! ❤️"
+                msg = f"🌦️ BEBEBAI RAIN REPORT!\n\nCuaca di **{name}** lagi hujan nih. 🌧️ \n\nKalau mau berangkat atau pulang, jangan lupa bawa mantel ya cantik. Tetap hati-hati di jalan, Kelfin nggak mau kamu kehujanan apalagi sampai sakit. ❤️\n\nI love you, Kenar Sayang! ✨"
                 for cid in CHAT_IDS:
                     requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", json={"chat_id": cid.strip(), "text": msg, "parse_mode": "Markdown"})
                 
