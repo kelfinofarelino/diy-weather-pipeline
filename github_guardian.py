@@ -66,7 +66,7 @@ def run_check():
     # ==========================================
     # MODE 1: MORNING TEXT (Pasti Jalan Jam 7 Pagi WIB)
     # ==========================================
-    if (current_hour == 7 and current_minute < 30) or True:
+    if current_hour == 7 and current_minute < 30:
         print("☀️ Menjalankan Mode Morning Text...")
         morning_msg = (
             f"☀️ **GOOD MORNING, KENAR!** ☀️\n\n"
