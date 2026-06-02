@@ -19,7 +19,7 @@ def send_to_telegram():
 
     # 2. Input pesan dari terminal
     print("\n--- 🛡️ BEBEBAI MANUAL TERMINAL ---")
-    message = input("Happy 4 months!")
+    message = input("kirim pesan: ")
 
     if not message:
         print("❌ Pesan kosong, gak jadi kirim ya.")
