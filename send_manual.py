@@ -17,29 +17,21 @@ def send_to_telegram():
     # Pecah chat ID kalau ada lebih dari satu
     chat_ids = [cid.strip() for cid in chat_ids_raw.split(",")]
 
-   # 2. Input pesan dari terminal (Bisa Multiline)
-    print("\n--- 🛡️ BEBEBAI MANUAL TERMINAL (MULTILINE) ---")
-    print("Paste teks kamu di bawah, lalu tekan Ctrl+D (Linux/Mac) atau Ctrl+Z lalu Enter (Windows) untuk kirim:\n")
-    
-    lines = []
-    while True:
-        try:
-            line = input()
-            lines.append(line)
-        except EOFError:
-            break
-            
-    message = "\n".join(lines)
+    # 2. Teks Pesan Otomatis (Ganti Nama + Goodnight Text)
+    # Gunakan triple quotes (") biar bisa nulis teks panjang berparagraf langsung di kode
+    message = (\
+        "I love you so much, Kenar! ❤️"
+    )
 
     # 3. Eksekusi kirim
-    print("🚀 Mengirim pesan...")
+    print("🚀 Mengirim pesan ke Telegram...")
     
     for cid in chat_ids:
         url = f"https://api.telegram.org/bot{token}/sendMessage"
         payload = {
             "chat_id": cid,
             "text": message,
-            "parse_mode": "Markdown"
+            "parse_mode": "Markdown" # Biar format tebal (**) dan miring (*) jalan
         }
         
         try:
