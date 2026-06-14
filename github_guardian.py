@@ -64,20 +64,22 @@ def run_check():
             print(f"Gagal ambil data {name}: {e}")
 
     # ==========================================
-    # MODE 1: MORNING TEXT (Pasti Jalan Jam 7 Pagi WIB)
+    # MODE 1: MORNING TEXT (Toleransi Jam Nanggung)
     # ==========================================
-    if current_hour == 7:
+    # Robot akan menembak Morning Text jika bangun di jam 6 pagi lewat menit 40 ke atas,
+    # atau tepat di jam 7 pagi. Ini bikin bot kamu ANTI-DROP!
+    if (current_hour == 6 and current_minute >= 40) or (current_hour == 7):
         print("☀️ Menjalankan Mode Morning Text...")
         morning_msg = (
             f"☀️ **GOOD MORNING, KENAR!** ☀️\n\n"
             f"Semangat buat menjalani hari ini ya cantik! 🥰 Don't forget to breakfast and drink water.\n\n"
             f"🤖 *Info Cuaca Jogja Pagi Ini:* \n\n{weather_report}"
-            f"Have a nice day! Bebebai Sky Watcher stand by. ✨" # <-- No More Guardian
+            f"Have a nice day! Bebebai Sky Watcher stand by. ✨"
         )
         for cid in CHAT_IDS:
             requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", json={"chat_id": cid.strip(), "text": morning_msg, "parse_mode": "Markdown"})
         print("✅ Morning text sukses dikirim!")
-        return
+        return #
 
     # ==========================================
     # MODE 2: ALARM SATPAM HUJAN (Cek Memori Supabase)

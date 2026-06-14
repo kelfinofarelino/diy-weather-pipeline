@@ -1,22 +1,24 @@
-name: Bebebai Guardian Cron
+name: Bebebai Sky Sentinel Cron
 on:
   schedule:
-    - cron: '*/30 * * * *' # Jalan otomatis tiap 30 menit
-  workflow_dispatch: # Biar bisa kamu klik 'Run' manual buat ngetes
+    # Jalan di menit ke-20 dan menit ke-50 setiap jam
+    # Trik ini bikin bot kamu dapet antrean sepi sebelum jam 7 pagi (06:50 WIB / 23:50 UTC)
+    - cron: '20,50 * * * *' 
+  workflow_dispatch: # Biar tetep bisa kamu klik 'Run' manual buat ngetes
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4 # Di-upgrade ke v4 biar anti-warning
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5 # Di-upgrade ke v5 biar stabil
         with:
           python-version: '3.12'
       - name: Install dependencies
         run: pip install requests supabase
-      - name: Run Guardian
+      - name: Run Sentinel System
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
