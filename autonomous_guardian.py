@@ -69,7 +69,7 @@ def run_guardian():
                     msg = (
                         f"Kondisi cuaca {loc_str}. 🌧️\n"
                         f"Kalau mau berangkat atau pulang, jangan lupa bawa mantel ya cantik. "
-                        f"Tetap hati-hati di jalan, Kelfin nggak mau kamu kehujanan apalagi sampai sakit. ❤️\n\n"
+                        f"Tetap hati-hati di jalan, Kelfin gamau kamu kehujanan apalagi sampai sakit. ❤️\n\n"
                         f"I love you, Kenar Sayang! ✨"
                     )
                     send_alert(msg)

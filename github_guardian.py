@@ -72,12 +72,12 @@ def run_check():
             f"☀️ **GOOD MORNING, KENAR!** ☀️\n\n"
             f"Semangat buat menjalani hari ini ya cantik! 🥰 Don't forget to breakfast and drink water.\n\n"
             f"🤖 *Info Cuaca Jogja Pagi Ini:* \n\n{weather_report}"
-            f"Have a nice day! Bebebai Auto-Guardian stand by. 🛡️✨"
+            f"Have a nice day! Bebebai Sky Watcher stand by. ✨" # <-- No More Guardian
         )
         for cid in CHAT_IDS:
             requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", json={"chat_id": cid.strip(), "text": morning_msg, "parse_mode": "Markdown"})
         print("✅ Morning text sukses dikirim!")
-        return # Keluar dari fungsi, jam 7 pagi ga perlu kirim alarm hujan dobel-dobel.
+        return
 
     # ==========================================
     # MODE 2: ALARM SATPAM HUJAN (Cek Memori Supabase)
@@ -90,7 +90,7 @@ def run_check():
         # Kalau alarm terakhir sudah lebih dari 30 menit yang lalu, tembak!
         if (datetime.utcnow() - last_val) >= timedelta(minutes=30):
             print("🚨 Mengirim alarm hujan ke Kenar...")
-            msg = f"🌦️ BEBEBAI RAIN REPORT!\n\nCuaca di **{rain_location}** lagi hujan nih. 🌧️ \n\nKalau mau berangkat atau pulang, jangan lupa bawa mantel ya cantik. Tetap hati-hati di jalan, Kelfin nggak mau kamu kehujanan apalagi sampai sakit. ❤️\n\nI love you, Kenar Sayang! ✨"
+            msg = f"🌦️ BEBEBAI RAIN REPORT!\n\nCuaca di **{rain_location}** lagi hujan nih. 🌧️ \n\nKalau mau berangkat atau pulang, jangan lupa bawa mantel ya cantik. Tetap hati-hati di jalan, Kelfin gamau kamu kehujanan apalagi sampai sakit. ❤️\n\nI love you, Kenar Sayang! ✨"
             for cid in CHAT_IDS:
                 requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", json={"chat_id": cid.strip(), "text": msg, "parse_mode": "Markdown"})
             

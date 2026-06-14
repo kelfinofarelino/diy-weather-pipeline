@@ -11,8 +11,9 @@ import urllib.parse
 
 # --- INITIAL CONFIG ---
 load_dotenv()
+load_dotenv()
 st.set_page_config(
-    page_title="Kenar's Sky Guardian | by Kelfin",
+    page_title="Kenar's Sky Sentinel | by Kelfin", # <-- No More Guardian
     layout="wide",
     page_icon="✨",
     initial_sidebar_state="expanded"
