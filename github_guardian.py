@@ -64,25 +64,44 @@ def run_check():
             print(f"Gagal ambil data {name}: {e}")
 
     # ==========================================
-    # MODE 1: MORNING TEXT (Toleransi Jam Nanggung)
+    # MODE 1: MORNING TEXT
     # ==========================================
-    # Robot akan menembak Morning Text jika bangun di jam 6 pagi lewat menit 40 ke atas,
-    # atau tepat di jam 7 pagi. Ini bikin bot kamu ANTI-DROP!
-    if (current_hour == 6 and current_minute >= 40) or (current_hour == 7):
-        print("☀️ Menjalankan Mode Morning Text...")
-        morning_msg = (
-            f"☀️ **GOOD MORNING, KENAR!** ☀️\n\n"
-            f"Semangat buat menjalani hari ini ya cantik! 🥰 Don't forget to breakfast and drink water.\n\n"
-            f"🤖 *Info Cuaca Jogja Pagi Ini:* \n\n{weather_report}"
-            f"Have a nice day! Bebebai Sky Watcher stand by. ✨"
-        )
-        for cid in CHAT_IDS:
-            requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", json={"chat_id": cid.strip(), "text": morning_msg, "parse_mode": "Markdown"})
-        print("✅ Morning text sukses dikirim!")
-        return #
+    # Jam 23 UTC = 06:00 WIB, Jam 00 UTC = 07:00 WIB
+    utc_now = datetime.utcnow()
+    
+    if utc_now.hour == 23 or utc_now.hour == 0:
+        print("☀️ Memasuki jam kritis Morning Text (06:00 - 07:59 WIB)...")
+        
+        # Cek apakah HARI INI (tanggal WIB) sudah pernah kirim morning text?
+        # Kita cek memori di Supabase biar gak dobel kirim akibat delay cron
+        today_str = wib_now.strftime("%Y-%m-%d")
+        res_check = supabase.table("bot_status").select("last_val").eq("key_name", "last_morning_text_date").execute()
+        
+        # Jika belum pernah kirim hari ini, baru kita tembak!
+        if not res_check.data or res_check.data[0]['last_val'] != today_str:
+            print("🚀 Belum ada log kirim hari ini. Mengirim Morning Text ke Kenar...")
+            morning_msg = (
+                f"☀️ **GOOD MORNING, KENAR!** ☀️\n\n"
+                f"Semangat buat menjalani hari ini ya cantik! 🥰 Don't forget to breakfast and drink water.\n\n"
+                f"🤖 *Info Cuaca Jogja Pagi Ini:* \n\n{weather_report}"
+                f"Have a nice day! Bebebai Sky Watcher stand by. ✨"
+            )
+            for cid in CHAT_IDS:
+                requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", json={"chat_id": cid.strip(), "text": morning_msg, "parse_mode": "Markdown"})
+            
+            # Catat tanggal hari ini ke Supabase biar besok-besok gak dobel kirim lagi di rentang jam yang sama
+            if not res_check.data:
+                supabase.table("bot_status").insert({"key_name": "last_morning_text_date", "last_val": today_str}).execute()
+            else:
+                supabase.table("bot_status").update({"last_val": today_str}).eq("key_name", "last_morning_text_date").execute()
+                
+            print("✅ Morning text sukses mendarat!")
+            return
+        else:
+            print("⏳ Morning text untuk hari ini sudah pernah dikirim sebelumnya. Skip!")
 
     # ==========================================
-    # MODE 2: ALARM SATPAM HUJAN (Cek Memori Supabase)
+    # MODE 2: ALARM SATPAM HUJAN
     # ==========================================
     if is_raining_somewhere:
         print("🌧️ Terdeteksi hujan! Mengecek memori di Supabase...")
