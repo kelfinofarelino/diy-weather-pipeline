@@ -16,7 +16,6 @@ CHAT_IDS = os.getenv("TELEGRAM_CHAT_IDS").split(",")
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Titik Krusial Kenar
 LOCATIONS = {
     "Seturan (Kampus)": {"lat": -7.7693, "lon": 110.4083},
     "Kasihan (Rumah)": {"lat": -7.8333, "lon": 110.3333}

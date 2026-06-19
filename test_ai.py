@@ -12,8 +12,6 @@ print("="*30)
 try:
     client = genai.Client(api_key=api_key)
     
-    # Pakai nama model 'gemini-flash-latest' (Sesuai list kamu tadi)
-    # Ini model paling 'nurut' dan jarang kena limit 0
     response = client.models.generate_content(
         model='gemini-flash-latest', 
         contents="Halo! Sky Guardian Kelfin lapor, apakah sistem sudah stabil?"

@@ -11,7 +11,6 @@ chat_ids_raw = os.getenv("TELEGRAM_CHAT_IDS")
 if not chat_ids_raw:
     print("❌ ERROR: TELEGRAM_CHAT_IDS di .env belum ada atau kosong!")
 else:
-    # Pecah jadi list: ['5880216671', 'ID_KENAR']
     chat_ids = [cid.strip() for cid in chat_ids_raw.split(",")]
 
     print(f"--- DIAGNOSTIK DOUBLE GUARDIAN ---")

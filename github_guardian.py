@@ -3,7 +3,7 @@ import requests
 from supabase import create_client
 from datetime import datetime, timedelta
 
-# GitHub Actions bakal ambil ini dari 'Secrets'
+# Load environment variables
 URL = os.environ.get("SUPABASE_URL")
 KEY = os.environ.get("SUPABASE_KEY")
 TOKEN = os.environ.get("TELEGRAM_TOKEN")

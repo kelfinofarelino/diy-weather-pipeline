@@ -13,7 +13,7 @@ import urllib.parse
 load_dotenv()
 load_dotenv()
 st.set_page_config(
-    page_title="Kenar's Sky Sentinel | by Kelfin", # <-- No More Guardian
+    page_title="Kenar's Sky Sentinel | by Kelfin",
     layout="wide",
     page_icon="✨",
     initial_sidebar_state="expanded"
@@ -38,7 +38,6 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # --- BACKEND ARCHITECTURE ---
-
 def init_all():
     # Config Google AI
     api_key = os.getenv("GEMINI_API_KEY")
@@ -228,7 +227,6 @@ if not df.empty:
                     loader.markdown("**bebebai cek cuaca duluw...**")
                     try:
                         context_str = df.head(5).to_string()
-                        # GUNAKAN TIMEOUT 60 DETIK DI SINI JUGA
                         response = ai_engine.generate_content(
                             f"Data Cuaca: {context_str}\nKenar tanya: {prompt}",
                             request_options={"timeout": 60} 

@@ -2,7 +2,7 @@ import os
 import requests
 from dotenv import load_dotenv
 
-# 1. Load bensin dari .env
+# 1. Load dari .env
 load_dotenv()
 
 def send_to_telegram():

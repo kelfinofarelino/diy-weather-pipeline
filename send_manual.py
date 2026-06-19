@@ -17,8 +17,7 @@ def send_to_telegram():
     # Pecah chat ID kalau ada lebih dari satu
     chat_ids = [cid.strip() for cid in chat_ids_raw.split(",")]
 
-    # 2. Teks Pesan Otomatis (Ganti Nama + Goodnight Text)
-    # Gunakan triple quotes (") biar bisa nulis teks panjang berparagraf langsung di kode
+    # 2. MASUKKAN TEKS YANG MAU DIKIRIM DISINI
     message = (\
         "I love you so much, Kenar! ❤️"
     )
@@ -31,7 +30,7 @@ def send_to_telegram():
         payload = {
             "chat_id": cid,
             "text": message,
-            "parse_mode": "Markdown" # Biar format tebal (**) dan miring (*) jalan
+            "parse_mode": "Markdown"
         }
         
         try:

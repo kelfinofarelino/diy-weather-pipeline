@@ -1,10 +1,8 @@
 name: Bebebai Sky Sentinel Cron
 on:
   schedule:
-    # Jalan di menit ke-20 dan menit ke-50 setiap jam
-    # Trik ini bikin bot kamu dapet antrean sepi sebelum jam 7 pagi (06:50 WIB / 23:50 UTC)
     - cron: '20,50 * * * *' 
-  workflow_dispatch: # Biar tetep bisa kamu klik 'Run' manual buat ngetes
+  workflow_dispatch:
 
 jobs:
   build:
