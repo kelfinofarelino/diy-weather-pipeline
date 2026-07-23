@@ -81,10 +81,10 @@ def run_check():
         if not res_check.data or res_check.data[0]['last_val'] != today_str:
             print("🚀 Belum ada log kirim hari ini. Mengirim Morning Text ke Kenar...")
             morning_msg = (
-                f"☀️ **GOOD MORNING, KENAR!** ☀️\n\n"
-                f"Semangat buat menjalani hari ini ya cantik! 🥰 Don't forget to breakfast and drink water.\n\n"
-                f"🤖 *Info Cuaca Jogja Pagi Ini:* \n\n{weather_report}"
-                f"Have a nice day! Bebebai Sky Watcher stand by. ✨"
+                f"☀️ **Selamat Pagi, Sayangku Kenar!** ☀️\n\n"
+                f"Semoga harimu seru dan lancar ya, cantik! 🥰 Jangan lupa sarapan dan isi energi dulu. Water intake-nya juga ditunggu!\n\n"
+                f"🤖 *Update Cuaca Jogja Hari Ini:* \n\n{weather_report}\n"
+                f"Semangat ya! Bebebai Sky Watcher reporting for duty! ✨"
             )
             for cid in CHAT_IDS:
                 requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", json={"chat_id": cid.strip(), "text": morning_msg, "parse_mode": "Markdown"})
