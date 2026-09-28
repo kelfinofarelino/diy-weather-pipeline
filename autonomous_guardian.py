@@ -68,13 +68,7 @@ def run_guardian():
                 
                 if (datetime.utcnow() - last_notif_dt) >= timedelta(minutes=30):
                     loc_str = " dan ".join(location_details)
-                    msg = (
-                        f"🌦️ **BEBEBAI LIVE REPORT**\n\n"
-                        f"Kondisi cuaca di {loc_str} lagi hujan nih. 🌧️\n\n"
-                        f"Kalau mau berangkat atau pulang, jangan lupa bawa mantel ya cantik. "
-                        f"Tetap hati-hati di jalan, Kelfin gamau kamu kehujanan apalagi sampai sakit. ❤️\n\n"
-                        f"I love you, Kenar Sayang! ✨"
-                    )
+                    msg = f"🌧️ RAIN ALERT! Kondisi {loc_str} lagi hujan nih, siapin mantel dan hati-hati ya!"
                     send_alert(msg)
                     # Update timer di Supabase
                     supabase.table("bot_status").update({"last_val": datetime.utcnow().isoformat()}).eq("key_name", "last_rain_alert").execute()
