@@ -16,9 +16,12 @@ CHAT_IDS = os.getenv("TELEGRAM_CHAT_IDS").split(",")
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+# Titik Krusial Kenar & Kelfin
 LOCATIONS = {
-    "Seturan (Kampus)": {"lat": -7.7693, "lon": 110.4083},
-    "Kasihan (Rumah)": {"lat": -7.8333, "lon": 110.3333}
+    "Kampus Kenar": {"lat": -7.762094295356, "lon": 110.40904276147518},
+    "Kampus Kelfin": {"lat": -7.78247454447348, "lon": 110.41575673416027},
+    "Rumah Kelfin": {"lat": -7.709054979250819, "lon": 110.37713005267648},
+    "Rumah Kenar": {"lat": -7.825288734142021, "lon": 110.34150587367546}
 }
 
 def send_alert(message):
@@ -27,7 +30,7 @@ def send_alert(message):
         requests.post(url, json={"chat_id": chat_id.strip(), "text": message, "parse_mode": "Markdown"})
 
 def run_guardian():
-    print("🛡️ BEBEBAI AUTONOMOUS GUARDIAN IS ACTIVE...")
+    print("✨ BEBEBAI SKY SENTINEL IS ACTIVE...")
     
     while True:
         try:
@@ -66,7 +69,8 @@ def run_guardian():
                 if (datetime.utcnow() - last_notif_dt) >= timedelta(minutes=30):
                     loc_str = " dan ".join(location_details)
                     msg = (
-                        f"Kondisi cuaca {loc_str}. 🌧️\n"
+                        f"🌦️ **BEBEBAI LIVE REPORT**\n\n"
+                        f"Kondisi cuaca di {loc_str} lagi hujan nih. 🌧️\n\n"
                         f"Kalau mau berangkat atau pulang, jangan lupa bawa mantel ya cantik. "
                         f"Tetap hati-hati di jalan, Kelfin gamau kamu kehujanan apalagi sampai sakit. ❤️\n\n"
                         f"I love you, Kenar Sayang! ✨"
@@ -79,9 +83,9 @@ def run_guardian():
         except Exception as e:
             print(f"❌ Error: {e}")
 
-        # TUNGGU 10 MENIT sebelum cek lagi (Hemat kuota API & Database)
+        # Tunggu 30 menit (1800 detik) sebelum cek lagi
         print("😴 Sleeping for 30 minutes...")
-        time.sleep(900) 
+        time.sleep(1800)
 
 if __name__ == "__main__":
     run_guardian()
