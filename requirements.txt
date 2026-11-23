@@ -10,3 +10,4 @@ google-generativeai
 pyTelegramBotAPI
 python-dotenv
 requests
+Pillow
