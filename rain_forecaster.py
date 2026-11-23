@@ -16,7 +16,6 @@ supabase = create_client(URL, KEY)
 # Daftar Penerima Lengkap
 KELFIN_ID = "5880216671"  # Menerima prediksi semua 4 lokasi
 KENAR_ID = "5793257682"   # Menerima prediksi Rumah Kenar & Kampus Kenar
-ALL_RECIPIENTS = [KELFIN_ID, KENAR_ID]
 
 LOCATIONS = {
     "Rumah Kenar": {"lat": -7.825303738906615, "lon": 110.34150421779307},
@@ -26,6 +25,19 @@ LOCATIONS = {
 }
 
 KENAR_LOCS = ["Rumah Kenar", "Kampus Kenar"]
+CAMPUS_LOCS = ["Kampus Kenar", "Kampus Kelfin"]
+
+def is_location_active(loc_name, target_wib):
+    """
+    Mengecek apakah lokasi aktif dipantau pada waktu target prediksi (WIB):
+    - Kampus: Hanya Senin (0) s/d Jumat (4), pukul 07:00 - 17:00 WIB
+    - Rumah : 24 Jam setiap hari
+    """
+    if loc_name in CAMPUS_LOCS:
+        is_weekday = target_wib.weekday() < 5  # 0=Senin, 4=Jumat, 5=Sabtu, 6=Minggu
+        is_campus_hours = 7 <= target_wib.hour <= 17
+        return is_weekday and is_campus_hours
+    return True
 
 def send_forecast_message(chat_id, text):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
@@ -59,7 +71,7 @@ def update_forecast_timestamp(key_name):
 def run_forecaster():
     now_utc = datetime.utcnow()
     now_wib = now_utc + timedelta(hours=7)
-    print(f"🔭 bebebai Rain Forecaster jalan pada {now_wib.strftime('%H:%M')} WIB")
+    print(f"🔭 bebebai Rain Forecaster jalan pada {now_wib.strftime('%A, %H:%M')} WIB")
 
     kenar_alerts = []
     kelfin_alerts = []
@@ -72,12 +84,19 @@ def run_forecaster():
                 dt_utc = datetime.utcfromtimestamp(item["dt"])
                 hours_ahead = (dt_utc - now_utc).total_seconds() / 3600.0
 
+                # Filter rentang 2 hingga 5 jam sebelum kejadian
                 if 2.0 <= hours_ahead <= 5.0:
+                    dt_wib = dt_utc + timedelta(hours=7)
+
+                    # Cek aturan jam operasional lokasi (Kampus vs Rumah)
+                    if not is_location_active(name, dt_wib):
+                        print(f"⏭️ Skip {name} (prediksi pukul {dt_wib.strftime('%H.%M')} WIB di luar jam aktif)")
+                        continue
+
                     desc = item["weather"][0]["description"].lower()
                     pop = item.get("pop", 0)
 
                     if "rain" in desc or "drizzle" in desc or pop >= 0.60:
-                        dt_wib = dt_utc + timedelta(hours=7)
                         jam_str = dt_wib.strftime("%H.%M")
                         persen = int(round(pop * 100))
 
@@ -86,9 +105,7 @@ def run_forecaster():
                             "jam": jam_str,
                             "persen": persen
                         }
-                        # Masuk ke daftar laporan Kelfin (semua 4 titik)
                         kelfin_alerts.append(alert_info)
-                        # Masuk ke daftar laporan Kenar (khusus 2 titik Kenar)
                         if name in KENAR_LOCS:
                             kenar_alerts.append(alert_info)
                         break
