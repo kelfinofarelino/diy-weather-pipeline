@@ -41,7 +41,7 @@ def is_location_active(loc_name, target_wib):
     return True
 
 # ========================================================
-# GENERATOR GAMBAR PETA RADAR STATIS (ZOOM 10 - BEBAS WATERMARK)
+# GENERATOR GAMBAR PETA RADAR STATIS (ZOOM 7 - BEBAS ERROR)
 # ========================================================
 def latlon_to_tile(lat, lon, zoom):
     lat_rad = math.radians(lat)
@@ -52,14 +52,13 @@ def latlon_to_tile(lat, lon, zoom):
     y_exact = ((1.0 - math.asinh(math.tan(lat_rad)) / math.pi) / 2.0 * n - ytile) * 256
     return xtile, ytile, int(x_exact), int(y_exact)
 
-def generate_static_radar_image(lat, lon, zoom=10):
-    """Merender peta terang Apple-style + overlay radar awan RainViewer pada zoom level 10."""
+def generate_static_radar_image(lat, lon, zoom=7):
+    """Merender peta Esri + overlay radar awan RainViewer pada zoom level 7 (batas maksimal free tier)."""
     try:
         rv_meta = requests.get("https://api.rainviewer.com/public/weather-maps.json", timeout=10).json()
         rv_host = rv_meta.get("host", "https://tilecache.rainviewer.com")
-        nowcast = rv_meta.get("radar", {}).get("nowcast", [])
         past = rv_meta.get("radar", {}).get("past", [])
-        target_frame = nowcast[0] if nowcast else (past[-1] if past else None)
+        target_frame = past[-1] if past else None
         if not target_frame:
             return None
 
@@ -74,18 +73,20 @@ def generate_static_radar_image(lat, lon, zoom=10):
                 tx, ty = cx + dx, cy + dy
                 paste_x, paste_y = (dx + 1) * 256, (dy + 1) * 256
 
-                base_url = f"https://a.basemaps.cartocdn.com/rastertiles/voyager/{zoom}/{tx}/{ty}.png"
+                # Basemap Esri World Street Map (gratis, tanpa API key)
+                base_url = f"https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{zoom}/{ty}/{tx}"
                 base_res = requests.get(base_url, headers=headers, timeout=10)
                 if base_res.status_code == 200:
                     base_tile = Image.open(BytesIO(base_res.content)).convert("RGBA")
                     canvas.paste(base_tile, (paste_x, paste_y))
 
+                # Overlay Radar RainViewer (maksimal zoom 7)
                 rad_url = f"{rv_host}{radar_path}/256/{zoom}/{tx}/{ty}/2/1_1.png"
                 rad_res = requests.get(rad_url, headers=headers, timeout=10)
                 if rad_res.status_code == 200:
                     rad_tile = Image.open(BytesIO(rad_res.content)).convert("RGBA")
                     r, g, b, a = rad_tile.split()
-                    a = a.point(lambda p: int(p * 0.72))
+                    a = a.point(lambda p: int(p * 0.75))
                     rad_tile = Image.merge("RGBA", (r, g, b, a))
                     canvas.alpha_composite(rad_tile, (paste_x, paste_y))
 
@@ -96,7 +97,7 @@ def generate_static_radar_image(lat, lon, zoom=10):
         draw.ellipse((pin_x - 10, pin_y - 10, pin_x + 10, pin_y + 10), fill=(255, 255, 255, 255))
         draw.ellipse((pin_x - 7, pin_y - 7, pin_x + 7, pin_y + 7), fill=(0, 122, 255, 255))
 
-        # Crop 500x380 agar wilayah Jogja & sebaran awannya terlihat jelas
+        # Crop 500x380 agar wilayah DIY & sebaran awannya terlihat jelas
         cropped = canvas.crop((pin_x - 250, pin_y - 190, pin_x + 250, pin_y + 190)).convert("RGB")
         output = BytesIO()
         cropped.save(output, format="JPEG", quality=88)
@@ -122,7 +123,7 @@ def send_forecast_notification(chat_id, caption, target_loc, lat, lon):
         ]]
     }
 
-    image_buf = generate_static_radar_image(lat, lon, zoom=10)
+    image_buf = generate_static_radar_image(lat, lon, zoom=7)
 
     if image_buf:
         url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
